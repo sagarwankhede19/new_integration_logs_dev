@@ -17,7 +17,7 @@
             <property name="messageId" expression="$ctx:requestPayload/msg_id" scope="transport" type="STRING" />
             <property name="notifyUrl" value="https://wso2api.devwso2.kraftsoftwaresolutions.com/sendmessages/1.0.0/callback" />
             <property name="integrationNo" scope="transport" type="STRING" value="I1125" />
-            <property name="type" scope="transport" type="STRING" value="Incoming request from TM" />
+            <property name="type" scope="transport" type="STRING" value="Incoming request from TM to Kraft" />
 
             <payloadFactory media-type="json" template-type="default">
                 <format> $1</format>

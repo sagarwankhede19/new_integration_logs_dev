@@ -22,7 +22,7 @@
     
     <property name="infobipRequest" expression="json-eval($)" scope="default" />
     <property name="integrationNo" scope="transport" type="STRING" value="I1125" />
-    <property name="type" scope="transport" type="STRING" value="Request to Infobip" />
+    <property name="type" scope="transport" type="STRING" value="Request from Kraft to Infobip" />
     <property name="messageId" scope="transport" type="STRING" expression="get-property('messageId')" />
     <log level="full">
         <property name="infobipRequest-----1--" expression="get-property('infobipRequest')"></property>
@@ -45,11 +45,27 @@
     <call>
         <endpoint key="infobipEP" />
     </call>
+    
     <property name="statusCode" expression="get-property('axis2', 'HTTP_SC')"/>
     <property name="responseCode" scope="transport" expression="get-property('statusCode')"/>
-    <property name="infobipResponse"  expression="json-eval($.)" />
+
+    <property name="infobipResponse" expression="json-eval($)" scope="default" />
     <property name="integrationNo" scope="transport" type="STRING" value="I1125" />
-    <property name="type" scope="transport" type="STRING" value="Response from Infobip" />
+    <property name="type" scope="transport" type="STRING" value="Response from Infobip to Kraft" />
+    <property name="messageId" scope="transport" type="STRING" expression="get-property('messageId')" />
+    <log level="full">
+        <property name="infobipResponse-----1--" expression="get-property('infobipResponse')"></property>
+    </log>
+    <call>
+        <endpoint key="LogAPI" />
+    </call>
+    <property name="SC_ACCEPTED" value="false" scope="axis2"/>
+    <payloadFactory media-type="json">
+        <format>$1</format>
+        <args>
+            <arg evaluator="xml" expression="get-property('infobipResponse')"></arg>
+        </args>
+    </payloadFactory>
 
     <switch source="get-property('statusCode')">
         <case regex="200">
@@ -81,6 +97,8 @@
         </default>
     </switch>
 
+    <property name="integrationNo" scope="transport" type="STRING" value="I1125" />
+    <property name="type" scope="transport" type="STRING" value="Response from Kraft to TM" />
     <call>
         <endpoint key="LogAPI" />
     </call>

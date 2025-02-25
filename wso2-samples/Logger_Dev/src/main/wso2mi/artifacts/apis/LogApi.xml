@@ -10,7 +10,7 @@
                 <property name="body------" expression="get-property('body')"/>
                 <property name="fullPayload------" expression="get-property('fullPayload')"/>
             </log>
-            <filter xpath="get-property('transport', 'type') = 'Incoming request from TM' or get-property('transport', 'type') = 'Request to Infobip'">
+            <filter xpath="get-property('transport', 'type') = 'Incoming request from TM to Kraft' or get-property('transport', 'type') = 'Request from Kraft to Infobip' or get-property('transport', 'type') = 'Response from Infobip to Kraft'">
                 <then>
                     <log level="full">
                         <property name="message" value="------Inside then-----"/>
