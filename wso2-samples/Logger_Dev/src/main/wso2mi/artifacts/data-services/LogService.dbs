@@ -1,0 +1,83 @@
+<data name="LogService" serviceNamespace="" serviceGroup="" transports="http https" disableStreaming="true">
+    <description />
+    <config id="log">
+        <property name="driverClassName">com.mysql.cj.jdbc.Driver</property>
+        <property name="url">jdbc:mysql://devwso2.kraftsoftwaresolutions.com/vkraftwso2</property>
+        <property name="username">wso2</property>
+        <property name="password">wso2@2024</property>
+    </config>
+
+    <!-- SELECT Query -->
+    <query id="select_all_logs_query" useConfig="log">
+        <sql>SELECT integration_number,
+            received_timestamp_ist, body, error_details, message_id, event_type, status,
+            response_code FROM integration_logs_dev</sql>
+        <result element="logsCollection" rowName="logs">
+            <element column="integration_number" name="integration_number" xsdType="xs:string"/>
+            <element column="received_timestamp_ist" name="received_timestamp_ist" xsdType="xs:timestamp"/>
+            <element column="body" name="body" xsdType="xs:string"/>
+            <element column="error_details" name="error_details" xsdType="xs:string"/>
+            <element column="message_id" name="message_id" xsdType="xs:string"/>
+            <element column="event_type" name="event_type" xsdType="xs:string"/>
+            <element column="status" name="status" xsdType="xs:string"/>
+            <element column="response_code" name="response_code" xsdType="xs:string"/>
+        </result>
+    </query>
+    <resource method="GET" path="logs">
+        <call-query href="select_all_logs_query"/>
+    </resource>
+
+    <query id="select_all_CONFIGS_query" useConfig="log">
+        <sql>SELECT config_data FROM CONFIGS where config_key="smtp_config"</sql>
+        <result outputType="json">{"configs":{"config":[{"value":"$config_data"}]}}</result>
+    </query>
+    <resource method="GET" path="CONFIGS">
+        <call-query href="select_all_CONFIGS_query"/>
+    </resource>
+    <!-- INSERT Query -->
+    <query id="insert_logs_query" useConfig="log">
+        <sql>INSERT
+            INTO integration_logs_dev
+            (integration_number, received_timestamp_ist, body, error_details, message_id,
+            event_type, status, response_code) VALUES
+            (?, CONVERT_TZ(CURRENT_TIMESTAMP(3), '+00:00', '+05:30'), ?, ?, ?, ?, ?, ?)</sql>
+        <param name="integration_number" ordinal="1" paramType="SCALAR" sqlType="STRING" type="IN"/>
+        <param name="body" ordinal="2" paramType="SCALAR" sqlType="STRING" type="IN"/>
+        <param name="error_details" ordinal="3" paramType="SCALAR" sqlType="STRING" type="IN"/>
+        <param name="message_id" ordinal="4" paramType="SCALAR" sqlType="STRING" type="IN"/>
+        <param name="event_type" ordinal="5" paramType="SCALAR" sqlType="STRING" type="IN"/>
+        <param name="status" ordinal="6" paramType="SCALAR" sqlType="STRING" type="IN"/>
+        <param name="response_code" ordinal="7" paramType="SCALAR" sqlType="STRING" type="IN"/>
+    </query>
+    <resource method="POST" path="logs">
+        <call-query href="insert_logs_query">
+            <with-param name="integration_number" query-param="integration_number"/>
+            <with-param name="body" query-param="body"/>
+            <with-param name="error_details" query-param="error_details"/>
+            <with-param name="message_id" query-param="message_id"/>
+            <with-param name="event_type" query-param="event_type"/>
+            <with-param name="status" query-param="status"/>
+            <with-param name="response_code" query-param="response_code"/>
+        </call-query>
+    </resource>
+
+    <!-- Callback Logs Insert Query -->
+    <query id="post_callbacklogs_query" useConfig="log">
+        <sql>INSERT
+            INTO integration_logs_dev (integration_number, received_timestamp_ist, body, message_id,
+            event_type) VALUES
+            (?, CONVERT_TZ(CURRENT_TIMESTAMP(3), '+00:00', '+05:30'), ?, ?, ?)</sql>
+        <param name="integration_number" ordinal="1" paramType="SCALAR" sqlType="STRING" type="IN"/>
+        <param name="body" ordinal="2" paramType="SCALAR" sqlType="STRING" type="IN"/>
+        <param name="message_id" ordinal="3" paramType="SCALAR" sqlType="STRING" type="IN"/>
+        <param name="event_type" ordinal="4" paramType="SCALAR" sqlType="STRING" type="IN"/>
+    </query>
+    <resource method="POST" path="callbacklogs">
+        <call-query href="post_callbacklogs_query">
+            <with-param name="integration_number" query-param="integration_number"/>
+            <with-param name="body" query-param="body"/>
+            <with-param name="message_id" query-param="message_id"/>
+            <with-param name="event_type" query-param="event_type"/>
+        </call-query>
+    </resource>
+</data>
